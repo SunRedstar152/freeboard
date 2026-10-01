@@ -7,7 +7,7 @@ import { getDatabase, ref, onValue, query, orderByChild, limitToLast } from "htt
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://dnder-f068e-default-rtdb.asia-southeast1.firebasedatabase.app",
+  databaseURL: "https://iot-110-ca18b-default-rtdb.asia-southeast1.firebasedatabase.app/",
   projectId: "YOUR_PROJECT_ID",
   storageBucket: "YOUR_PROJECT_ID.appspot.com",
   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
