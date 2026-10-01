@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Dashboard — Firebase Realtime</title>
+  <meta name="description" content="Real-time IoT sensor monitoring dashboard powered by ESP32 and Firebase">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <!-- Animated Background Orbs -->
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <div class="dashboard-container">
+    <!-- Header -->
+    <header id="dashboard-header">
+      <div class="header-left">
+        <div class="logo">
+          <span class="material-icons-round logo-icon">sensors</span>
+        </div>
+        <div class="header-text">
+          <h1>IoT Dashboard</h1>
+          <p class="subtitle">ESP32 · Firebase Realtime Database</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="connection-badge" id="connection-badge">
+          <span class="pulse-dot"></span>
+          <span id="connection-text">Connecting...</span>
+        </div>
+        <div class="last-update" id="last-update">
+          <span class="material-icons-round" style="font-size: 16px;">schedule</span>
+          <span id="last-update-time">--:--:--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sensor Cards Row — 6 Cards -->
+    <section class="sensor-cards">
+      <!-- Temperature -->
+      <div class="card sensor-card card-temp" id="card-temp">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="card-icon icon-temp">
+            <span class="material-icons-round">thermostat</span>
+          </div>
+          <span class="card-label">Temperature</span>
+        </div>
+        <div class="card-value">
+          <span class="value" id="temp-value">--</span>
+          <span class="unit">°C</span>
+        </div>
+        <div class="card-bar">
+          <div class="bar-track"><div class="bar-fill bar-temp" id="temp-bar" style="width: 0%"></div></div>
+          <div class="bar-labels"><span>0°</span><span>50°</span></div>
+        </div>
+      </div>
+
+      <!-- Humidity -->
+      <div class="card sensor-card card-humi" id="card-humi">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="card-icon icon-humi">
+            <span class="material-icons-round">water_drop</span>
+          </div>
+          <span class="card-label">Humidity</span>
+        </div>
+        <div class="card-value">
+          <span class="value" id="hum-value">--</span>
+          <span class="unit">%</span>
+        </div>
+        <div class="card-bar">
+          <div class="bar-track"><div class="bar-fill bar-humi" id="humi-bar" style="width: 0%"></div></div>
+          <div class="bar-labels"><span>0%</span><span>100%</span></div>
+        </div>
+      </div>
+
+      <!-- Light -->
+      <div class="card sensor-card card-light" id="card-light">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="card-icon icon-light">
+            <span class="material-icons-round">light_mode</span>
+          </div>
+          <span class="card-label">Light Level</span>
+        </div>
+        <div class="card-value">
+          <span class="value" id="light-value">--</span>
+          <span class="unit">lx</span>
+        </div>
+        <div class="card-bar">
+          <div class="bar-track"><div class="bar-fill bar-light" id="light-bar" style="width: 0%"></div></div>
+          <div class="bar-labels"><span>0</span><span>1000</span></div>
+        </div>
+      </div>
+
+      <!-- Pressure -->
+      <div class="card sensor-card card-pressure" id="card-pressure">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="card-icon icon-pressure">
+            <span class="material-icons-round">speed</span>
+          </div>
+          <span class="card-label">Pressure</span>
+        </div>
+        <div class="card-value">
+          <span class="value" id="pressure-value">--</span>
+          <span class="unit">hPa</span>
+        </div>
+        <div class="card-bar">
+          <div class="bar-track"><div class="bar-fill bar-pressure" id="pressure-bar" style="width: 0%"></div></div>
+          <div class="bar-labels"><span>980</span><span>1040</span></div>
+        </div>
+      </div>
+
+      <!-- CO2 -->
+      <div class="card sensor-card card-co2" id="card-co2">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="card-icon icon-co2">
+            <span class="material-icons-round">cloud</span>
+          </div>
+          <span class="card-label">CO₂</span>
+        </div>
+        <div class="card-value">
+          <span class="value" id="co2-value">--</span>
+          <span class="unit">ppm</span>
+        </div>
+        <div class="card-bar">
+          <div class="bar-track"><div class="bar-fill bar-co2" id="co2-bar" style="width: 0%"></div></div>
+          <div class="bar-labels"><span>400</span><span>1000</span></div>
+        </div>
+      </div>
+
+      <!-- Soil Moisture -->
+      <div class="card sensor-card card-soil" id="card-soil">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="card-icon icon-soil">
+            <span class="material-icons-round">grass</span>
+          </div>
+          <span class="card-label">Soil Moisture</span>
+        </div>
+        <div class="card-value">
+          <span class="value" id="soil-value">--</span>
+          <span class="unit">%</span>
+        </div>
+        <div class="card-bar">
+          <div class="bar-track"><div class="bar-fill bar-soil" id="soil-bar" style="width: 0%"></div></div>
+          <div class="bar-labels"><span>0%</span><span>100%</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section with Tabs -->
+    <section class="charts-section">
+      <div class="card chart-card">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <span class="material-icons-round" style="color: var(--accent-blue);">insights</span>
+            <h2>History Analytics</h2>
+            <span class="history-count" id="history-count">0 records</span>
+          </div>
+          <div class="chart-tabs" id="chart-tabs">
+            <button class="tab-btn active" data-tab="all">
+              <span class="material-icons-round">stacked_line_chart</span> All
+            </button>
+            <button class="tab-btn" data-tab="temp">
+              <span class="material-icons-round">thermostat</span> Temp
+            </button>
+            <button class="tab-btn" data-tab="humi">
+              <span class="material-icons-round">water_drop</span> Humi
+            </button>
+            <button class="tab-btn" data-tab="light">
+              <span class="material-icons-round">light_mode</span> Light
+            </button>
+            <button class="tab-btn" data-tab="pressure">
+              <span class="material-icons-round">speed</span> Press
+            </button>
+            <button class="tab-btn" data-tab="co2">
+              <span class="material-icons-round">cloud</span> CO₂
+            </button>
+            <button class="tab-btn" data-tab="soil">
+              <span class="material-icons-round">grass</span> Soil
+            </button>
+          </div>
+        </div>
+
+        <!-- Time Range Info -->
+        <div class="time-range" id="time-range">
+          <span class="material-icons-round" style="font-size: 14px;">date_range</span>
+          <span id="time-range-text">Loading history...</span>
+        </div>
+
+        <!-- Chart Panels -->
+        <div class="chart-panel active" id="panel-all">
+          <div class="chart-wrapper"><canvas id="chartAll"></canvas></div>
+        </div>
+        <div class="chart-panel" id="panel-temp">
+          <div class="chart-wrapper chart-wrapper-single"><canvas id="chartTemp"></canvas></div>
+        </div>
+        <div class="chart-panel" id="panel-humi">
+          <div class="chart-wrapper chart-wrapper-single"><canvas id="chartHumi"></canvas></div>
+        </div>
+        <div class="chart-panel" id="panel-light">
+          <div class="chart-wrapper chart-wrapper-single"><canvas id="chartLight"></canvas></div>
+        </div>
+        <div class="chart-panel" id="panel-pressure">
+          <div class="chart-wrapper chart-wrapper-single"><canvas id="chartPressure"></canvas></div>
+        </div>
+        <div class="chart-panel" id="panel-co2">
+          <div class="chart-wrapper chart-wrapper-single"><canvas id="chartCo2"></canvas></div>
+        </div>
+        <div class="chart-panel" id="panel-soil">
+          <div class="chart-wrapper chart-wrapper-single"><canvas id="chartSoil"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- History Table -->
+    <section class="history-section">
+      <div class="card table-card">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <span class="material-icons-round" style="color: var(--accent-purple);">table_chart</span>
+            <h2>History Log</h2>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table id="history-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Timestamp</th>
+                <th>Temp (°C)</th>
+                <th>Humi (%)</th>
+                <th>Light (lx)</th>
+                <th>Press (hPa)</th>
+                <th>CO₂ (ppm)</th>
+                <th>Soil (%)</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr><td colspan="8" class="table-empty">Waiting for data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Powered by <strong>ESP32</strong> + <strong>Firebase RTDB</strong> · Data updates every 10s</p>
+    </footer>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
